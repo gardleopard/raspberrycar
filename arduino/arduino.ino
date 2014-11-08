@@ -138,16 +138,16 @@ void reverseMotor(int motor[], int throttle){
 
 void forwardDrive(){
   if(currentSteering > 0){
-    forwardMotor(leftMotor, 130+currentThrottle);
-    forwardMotor(rightMotor, 130+currentThrottle - currentSteering);
+    forwardMotor(leftMotor, currentThrottle);
+    forwardMotor(rightMotor, currentThrottle - currentSteering);
   } else {
-    forwardMotor(leftMotor, 130+currentThrottle + currentSteering);
-    forwardMotor(rightMotor, 130+currentThrottle);
+    forwardMotor(leftMotor, currentThrottle + currentSteering);
+    forwardMotor(rightMotor, currentThrottle);
   }
 }
 
 void reverseDrive(){
-  int reverseSpeed = (currentThrottle - 130)*-1;
+  int reverseSpeed = (currentThrottle)*-1;
   if(currentSteering > 0){
     reverseMotor(leftMotor, reverseSpeed);
     reverseMotor(rightMotor, reverseSpeed - currentSteering);
@@ -176,8 +176,8 @@ int getSteering(String input){
 void loop() {
   if (stringComplete) {
     Serial.println(inputString);
-    currentThrottle = getThrottle(inputString);
-    currentSteering = getSteering(inputString);
+    currentThrottle = getThrottle(inputString)*2;
+    currentSteering = getSteering(inputString)*2;
     inputString = "";
     stringComplete = false;
 //    module.setDisplayToDecNumber(currentThrottle, 0, false);
