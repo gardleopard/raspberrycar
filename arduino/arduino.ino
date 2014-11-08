@@ -149,11 +149,11 @@ void forwardDrive(){
 void reverseDrive(){
   int reverseSpeed = (currentThrottle - 130)*-1;
   if(currentSteering > 0){
-    forwardMotor(leftMotor, reverseSpeed);
-    forwardMotor(rightMotor, reverseSpeed - currentSteering);
+    reverseMotor(leftMotor, reverseSpeed);
+    reverseMotor(rightMotor, reverseSpeed - currentSteering);
   } else {
-    forwardMotor(leftMotor, reverseSpeed + currentSteering);
-    forwardMotor(rightMotor, reverseSpeed+currentThrottle);
+    reverseMotor(leftMotor, reverseSpeed + currentSteering);
+    reverseMotor(rightMotor, reverseSpeed+currentThrottle);
   }
 }
 
@@ -180,7 +180,7 @@ void loop() {
     currentSteering = getSteering(inputString);
     inputString = "";
     stringComplete = false;
-    module.setDisplayToDecNumber(currentThrottle, 0, false);
+//    module.setDisplayToDecNumber(currentThrottle, 0, false);
     if(currentThrottle > 10 || currentThrottle < -10){
       arm();
       loopCount = 0;
