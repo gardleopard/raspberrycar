@@ -16,8 +16,8 @@ void setup() {
   initMotor(leftMotor);
   Serial.begin(9600);
   Serial.println("Booting");
-  module.setDisplayToString("boot", 0, false);
-  delay(100);
+  module.setDisplayToString("boot");
+  delay(500);
 }
 
 void initMotor(int motor[]){
@@ -25,9 +25,31 @@ void initMotor(int motor[]){
     pinMode(motor[i], OUTPUT);
   }
 }
+void arm(){
+  armed = true;
+  module.clearDisplay();
+  module.setDisplayToString("armed");
+  enableMotors();
+}
+void disarm(){
+  armed = false;
+  module.clearDisplay();
+    module.setDisplayToString("disarmed");
+  stopMotors();
+}
+
+void enableMotors(){
+  enableMotor(rightMotor);
+  enableMotor(leftMotor);
+}
 
 void enableMotor(int motor[]){
   digitalWrite(motor[0], HIGH);
+}
+
+void stopMotors(){
+  stopMotor(rightMotor);
+  stopMotor(leftMotor);
 }
 
 void stopMotor(int motor[]){
@@ -107,6 +129,41 @@ void forwardMotor(int motor[], int throttle){
   digitalWrite(motor[1], HIGH);
   digitalWrite(motor[2], LOW);
 }
+void reverseMotor(int motor[], int throttle){
+  analogWrite(motor[0], throttle);
+  digitalWrite(motor[1], LOW);
+  digitalWrite(motor[2], HIGH);
+}
+
+
+void forwardDrive(){
+  if(currentSteering > 0){
+    forwardMotor(leftMotor, 130+currentThrottle);
+    forwardMotor(rightMotor, 130+currentThrottle - currentSteering);
+  } else {
+    forwardMotor(leftMotor, 130+currentThrottle + currentSteering);
+    forwardMotor(rightMotor, 130+currentThrottle);
+  }
+}
+
+void reverseDrive(){
+  int reverseSpeed = (currentThrottle - 130)*-1;
+  if(currentSteering > 0){
+    forwardMotor(leftMotor, reverseSpeed);
+    forwardMotor(rightMotor, reverseSpeed - currentSteering);
+  } else {
+    forwardMotor(leftMotor, reverseSpeed + currentSteering);
+    forwardMotor(rightMotor, reverseSpeed+currentThrottle);
+  }
+}
+
+void drive(){
+  if(currentThrottle > 0){
+    forwardDrive();
+  } else {
+    reverseDrive();
+  }
+}
 
 int getThrottle(String input){
   return input.substring(1,input.indexOf("S")).toInt();
@@ -124,15 +181,30 @@ void loop() {
     inputString = "";
     stringComplete = false;
     module.setDisplayToDecNumber(currentThrottle, 0, false);
+    if(currentThrottle > 10 || currentThrottle < -10){
+      arm();
+      loopCount = 0;
+    }
+    else{
+      disarm();
+    }
   }
-  module.setDisplayToString("loop", 0, false);
+  //module.setDisplayToString("loop", 0, false);
  // speedTest();
  // delay(500);
  // stop();
  // delay(5000);
 //reverse();
   //delay(500);
-  
+  loopCount++;
+
+  if(loopCount > 100000){
+    disarm();
+    loopCount = 0;
+  }
+  if(armed){
+    drive();
+  }
   //turn();
 }
 void serialEvent() {
